@@ -1,0 +1,8 @@
+app = "npm2es"
+description = "follow packages in ES, index for search"
+start = "node bin/npm2es.js"
+
+[environment]
+  SERVICE_NAME = "npm2es"
+  ELASTIC_SEARCH = "{{elasticsearch_url}}"
+  COUCH_URL = "{{couchdb_url}}"

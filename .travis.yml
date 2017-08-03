@@ -1,0 +1,15 @@
+sudo: required
+language: node_js
+node_js:
+  - '6'
+services:
+  - docker
+script:
+  - 'echo "TODO: add integration tests"'
+
+before_script:
+  - npm i dockyard@latest -g
+
+after_success:
+  - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+  - dockyard build image --repo=npmjs --name=npm-docker-couchdb
