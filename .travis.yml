@@ -12,4 +12,4 @@ before_script:
 
 after_success:
   - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-  - dockyard build image --repo=npmjs --name=npm-docker-couchdb
+  - dockyard build image --repo=npmjs --name=npm-npm2es
