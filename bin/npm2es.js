@@ -8,7 +8,7 @@ const argv = require('yargs')
   })
   .option('es', {
     describe: 'ElasticSearch to populate with search data',
-    default: process.env.ELASTIC_SEARCH,
+    default: process.env.ELASTIC_SEARCH ? `http://${process.env.ELASTIC_SEARCH}`: undefined,
     demand: true
   })
   .option('since', {
