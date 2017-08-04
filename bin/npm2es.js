@@ -267,6 +267,9 @@ function _createThrottlingQueue(last, concurrency) {
                 }
                 // modern versions of ES don't allow
                 // for keys with '.' in them.
+                if (p.time) {
+                  delete p.time
+                }
                 if (p.times) {
                   delete p.times
                 }
