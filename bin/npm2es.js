@@ -245,7 +245,7 @@ function _createThrottlingQueue(last, concurrency) {
             p.dlScore = p.dlWeek / (p.dlMonth / 4);
 
             request.get({
-              url: argv.es + '/package/' + p.name,
+              url: argv.es + '/package/package/' + p.name,
               json: true
             }, function(e,b, obj) {
 
