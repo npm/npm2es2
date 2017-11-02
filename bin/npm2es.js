@@ -184,7 +184,7 @@ function _createThrottlingQueue(last, concurrency) {
 
     // Remove the document from elasticsearch
     if (change.deleted) {
-      request.del(argv.es + '/package/' + change.id, function(err) {
+      request.del(argv.es + '/package/package/' + change.id, function(err) {
         if (!err) {
           console.log('DELETED', change.id);
         } else {
@@ -275,7 +275,7 @@ function _createThrottlingQueue(last, concurrency) {
                 }
 
                 request.put({
-                  url: argv.es + '/package/' + p.name,
+                  url: argv.es + '/package/package/' + p.name,
                   json: extend(obj._source || {}, p)
                 }, function(e, r, b) {
                   if (e) {
