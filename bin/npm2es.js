@@ -122,11 +122,11 @@ function trackSequence({couch, metricsReportFrequency, leaderSequencePollFrequen
 
   // Poll leader sequence
   setInterval(() => {
-    request.get(`${couch}/_changes?since=now&limit=1`, (err, {statusCode}, body) => {
+    request.get(couch, (err, {statusCode}, body) => {
       if (err) {
         console.error('Failed to fetch last sequence from leader:', err)
       } else if (statusCode === 200) {
-        leaderSequence = Number.parseInt(JSON.parse(body).last_seq)
+        leaderSequence = Number.parseInt(JSON.parse(body).update_seq)
       }
     })
   }, leaderSequencePollFrequency)
