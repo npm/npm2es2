@@ -19,7 +19,7 @@ const argv = require('yargs')
     describe: 'Sequence # in couch to begin indexing from',
     default: 0
   })
-  .optioon('monitorPort', {
+  .option('monitorPort', {
     describe: 'The port on which to run the monitoring service',
     default: process.env.MONITOR_PORT || 5000
   })
@@ -44,7 +44,6 @@ const follow = require('follow'),
     Emitter = require('numbat-emitter'),
     procMetrics = require('numbat-process'),
     Monitor = require('micro-monitor'),
-    fs = require('fs'),
     extend = require('extend'),
     interval = argv.interval || 1000,
     seqUrl = argv.es + '/config/sequence',
@@ -93,7 +92,7 @@ if (typeof since === 'undefined') {
   });
 }
 
-function trackSequence({metricsReportFrequency, leaderSequencePollFrequency}) {
+function trackSequence({couch, metricsReportFrequency, leaderSequencePollFrequency}) {
   let followerSequence = 0
   let leaderSequence = 0
   const sequenceOffset = () => leaderSequence - followerSequence
@@ -113,7 +112,7 @@ function trackSequence({metricsReportFrequency, leaderSequencePollFrequency}) {
     })
     process.emit('metric', {
       name: 'sequence.follower',
-      value: follower.sequence()
+      value: followerSequence
     })
     process.emit('metric', {
       name: 'sequence.offset',
@@ -123,7 +122,7 @@ function trackSequence({metricsReportFrequency, leaderSequencePollFrequency}) {
 
   // Poll leader sequence
   setInterval(() => {
-    request.get(`${leaderUrl}/_changes?since=now&limit=1`, (err, {statusCode}, body) => {
+    request.get(`${couch}/_changes?since=now&limit=1`, (err, {statusCode}, body) => {
       if (err) {
         console.error('Failed to fetch last sequence from leader:', err)
       } else if (statusCode === 200) {
