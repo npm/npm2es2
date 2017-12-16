@@ -134,6 +134,7 @@ function trackSequence({couch, metricsReportFrequency, leaderSequencePollFrequen
   // Supply the sequence updater function
   return (sequence) => {
     followerSequence = sequence || followerSequence
+    leaderSequence = Math.max(leaderSequence, followerSequence)
   }
 }
 
