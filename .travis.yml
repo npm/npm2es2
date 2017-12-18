@@ -8,8 +8,8 @@ script:
   - 'echo "TODO: add integration tests"'
 
 before_script:
-  - npm i dockyard@latest -g
+  - npm i @npm-wharf/shipwright@latest -g
 
 after_success:
   - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-  - dockyard build image --repo=npmjs --name=npm-npm2es
+  - shipwright build image --repo=npmjs --name=npm-npm2es
