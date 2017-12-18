@@ -4,7 +4,8 @@
   "description": "push npm package metadata into elasticsearch for querying",
   "main": "index.js",
   "scripts": {
-    "test": "node test/test.js"
+    "lint": "standard",
+    "test": "tap tests/*.js"
   },
   "bin": {
     "npm2es": "bin/npm2es.js"
@@ -27,12 +28,16 @@
     "async": "^0.7.0",
     "extend": "~1.1.3",
     "follow": "~0.9.0",
+    "micro-monitor": "^3.0.0",
     "npm-normalize": "~0.2.0",
+    "numbat-emitter": "^4.0.1",
+    "numbat-process": "^2.2.0",
     "request": "~2.21",
     "yargs": "^8.0.2"
   },
   "devDependencies": {
-    "tap": "~0.4.1",
-    "rimraf": "~2.1.4"
+    "rimraf": "~2.1.4",
+    "standard": "^10.0.3",
+    "tap": "^9.0.3"
   }
 }

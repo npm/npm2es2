@@ -31,6 +31,20 @@ First off, you'll want the following installed
 
 Now we can run the test, just run `npm test`
 
+# configuration
+
+The following environment variables may be used to configure this service:
+
+  * `COUCH_URL` the URL of the CouchDB to follow
+  * `ELASTIC_SEARCH` the host (`<host>[:port]`) of the ElasticSearch to populate
+  * `QUEUE_DEPTH` max number of docs in the backlog queue (default is 2048)
+  * `MONITOR_PORT` port to which the monitor service should bind (default is 5000)
+  * `METRICS` URL of the metrics sink (normally a nsqd URL)
+  * `METRICS_REPORT_FREQUENCY` the frequency (in milliseconds) at which to report metrics
+       (default is 10000)
+  * `LEADER_SEQUENCE_POLL_FREQUENCY` the frequency (in milliseconds) at which to poll the
+       leader (source CouchDB) for its maximum sequence number (default is 10000)
+
 # License
 
 MIT © 2013 solids l.l.c.

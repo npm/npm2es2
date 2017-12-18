@@ -11,9 +11,29 @@ const argv = require('yargs')
     default: process.env.ELASTIC_SEARCH ? `http://${process.env.ELASTIC_SEARCH}`: undefined,
     demand: true
   })
+  .option('queueDepth', {
+    describe: 'Max number of docs in the backlog',
+    default: process.env.QUEUE_DEPTH || 2048,
+  })
   .option('since', {
-    describe: 'sequence # in couch to begin indexing from',
+    describe: 'Sequence # in couch to begin indexing from',
     default: 0
+  })
+  .option('monitorPort', {
+    describe: 'The port on which to run the monitoring service',
+    default: process.env.MONITOR_PORT || 5000
+  })
+  .option('metrics', {
+    describe: 'URL of the metrics sink',
+    default: process.env.METRICS
+  })
+  .option('metricsReportFrequency', {
+    describe: 'Frequency at which to report metrics',
+    default: process.env.METRICS_REPORT_FREQUENCY || 10000
+  })
+  .option('leaderSequencePollFrequency', {
+    describe: `frequency at which to poll leader's max sequence`,
+    default: process.env.LEADER_SEQUENCE_POLL_FREQUENCY || 10000
   })
   .help()
   .argv;
@@ -21,12 +41,24 @@ const argv = require('yargs')
 const follow = require('follow'),
     normalize = require('npm-normalize'),
     request = require('request'),
-    fs = require('fs'),
+    Emitter = require('numbat-emitter'),
+    procMetrics = require('numbat-process'),
+    Monitor = require('micro-monitor'),
     extend = require('extend'),
     interval = argv.interval || 1000,
     seqUrl = argv.es + '/config/sequence',
     since = argv.since,
     Queue = require('async').queue;
+
+// Configure only if a sink is supplied
+if (argv.metrics) {
+  const metrics = new Emitter({
+    app: 'npm2es2',
+    uri: argv.metrics
+  })
+  Emitter.setGlobalEmitter(metrics)
+  procMetrics(metrics, argv.metricsReportFrequency)
+}
 
 if (typeof since === 'undefined') {
   request.get({
@@ -58,6 +90,52 @@ if (typeof since === 'undefined') {
     }
     beginFollowing();
   });
+}
+
+function trackSequence({couch, metricsReportFrequency, leaderSequencePollFrequency}) {
+  let followerSequence = 0
+  let leaderSequence = 0
+  const sequenceOffset = () => leaderSequence - followerSequence
+
+  // Setup the monitor
+  Monitor(argv.monitorPort).contribute(() => ({
+    sequence: followerSequence,
+    leaderSequence,
+    sequenceOffset: sequenceOffset()
+  }))
+
+  // Report metrics
+  setInterval(() => {
+    process.emit('metric', {
+      name: 'sequence.leader',
+      value: leaderSequence
+    })
+    process.emit('metric', {
+      name: 'sequence.follower',
+      value: followerSequence
+    })
+    process.emit('metric', {
+      name: 'sequence.offset',
+      value: sequenceOffset()
+    })
+  }, metricsReportFrequency)
+
+  // Poll leader sequence
+  setInterval(() => {
+    request.get(couch, (err, {statusCode}, body) => {
+      if (err) {
+        console.error('Failed to fetch last sequence from leader:', err)
+      } else if (statusCode === 200) {
+        leaderSequence = Number.parseInt(JSON.parse(body).update_seq)
+      }
+    })
+  }, leaderSequencePollFrequency)
+
+  // Supply the sequence updater function
+  return (sequence) => {
+    followerSequence = sequence || followerSequence
+    leaderSequence = Math.max(leaderSequence, followerSequence)
+  }
 }
 
 function beginFollowing() {
@@ -124,6 +202,8 @@ function beginFollowing() {
     var last = since,
       queue = _createThrottlingQueue(last, 16);
 
+    const updateSequence = trackSequence(argv)
+
     follow({
       db: argv.couch,
       since: since,
@@ -147,7 +227,8 @@ function beginFollowing() {
       // the queue at the same time.
       // otherwise a backlog can be
       // created which fills memory.
-      if (queue.length() < 2048) {
+      if (queue.length() < argv.queueDepth) {
+        updateSequence(change.seq)
         queue.push(change);
       } else {
         this.pause();
