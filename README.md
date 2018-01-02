@@ -1,14 +1,14 @@
-# npm2es
+# npm2es2
 
 push npm package metadata into elasticsearch for querying
 
 # install
 
-`npm install -g npm2es`
+`npm install -g @npm/npm2es2`
 
 # use
 
-`USAGE: npm2es --couch="http://host:port/db" --es="http://host:port/index"`
+`USAGE: npm2es2 --couch="http://host:port/db" --es="http://host:port/index"`
 
 ## optional
 
