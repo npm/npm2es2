@@ -4,12 +4,21 @@ node_js:
   - '6'
 services:
   - docker
+
+git:
+  depth: false
+cache:
+  directories:
+  - .git
+
+before_install:
+  - npm -g i npm@latest
+  - npm i @npm-wharf/shipwright@latest -g
+  - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+
+install:
+  - npm ci
+
 script:
   - 'echo "TODO: add integration tests"'
-
-before_script:
-  - npm i @npm-wharf/shipwright@latest -g
-
-after_success:
-  - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
   - shipwright build image --repo=npmjs --name=npm-npm2es
