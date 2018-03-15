@@ -21,4 +21,4 @@ install:
 
 script:
   - 'echo "TODO: add integration tests"'
-  - shipwright build image --repo=npmjs --name=npm-npm2es
+  - shipwright build image --repo=npmjs --name=npm-npm2es --tags=lm,v_s,v,miv,ma,b,b_v_c_s --build-branches=master,qa,dev,deploy-staging,deploy-npme
