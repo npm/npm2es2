@@ -1,5 +1,5 @@
 # Set the base image to alpine Node LTS
-FROM npmjs/npm-docker-baseline:6-alpine
+FROM npmjs/npm-docker-baseline:8-alpine
 
 # File Author / Maintainer
 MAINTAINER Ben Coe
